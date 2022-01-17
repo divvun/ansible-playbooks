@@ -1,0 +1,61 @@
+- name: Install python
+  apt: name=python3 state=present
+
+- name: Install python-pip
+  apt: name=python3-pip state=present
+
+- name: Install python deps
+  ansible.builtin.command:
+    cmd: "pip install github3.py"
+
+- name: Install git
+  apt: name=git state=present
+
+- name: Setup known hosts
+  known_hosts:
+    name: "github.com"
+    key: "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+
+- name: Install nginx
+  apt: name=nginx state=present
+
+- name: Install certbot
+  apt: name=python3-certbot-nginx state=present
+
+- name: Remove default nginx config
+  file: name=/etc/nginx/sites-enabled/default state=absent
+
+- name: Set nginx main config
+  ansible.builtin.copy:
+    content: |
+      worker_processes auto;
+      pid /run/nginx.pid;
+      include /etc/nginx/modules-enabled/*.conf;
+
+      events {
+          worker_connections 768;
+      }
+
+      http {
+          sendfile on;
+          tcp_nopush on;
+          types_hash_max_size 2048;
+          server_tokens off;
+          include /etc/nginx/mime.types;
+          default_type application/octet-stream;
+          ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+          ssl_prefer_server_ciphers on;
+          ssl_dhparam /etc/nginx/dhparams.pem;
+          access_log /var/log/nginx/access.log;
+          error_log /var/log/nginx/error.log;
+          gzip on;
+          include /etc/nginx/conf.d/*.conf;
+          include /etc/nginx/sites-enabled/*;
+      }
+    dest: /etc/nginx/nginx.conf
+
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+  args:
+    creates: /etc/nginx/dhparams.pem
+

@@ -1,0 +1,20 @@
+- name: Deploy services
+  hosts: all
+  remote_user: root
+
+  roles:
+    - setup
+    - pahkat-reposrv
+
+  post_tasks:
+    - name: Reload nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Add letsencrypt cronjob for cert renewal
+      cron:
+        name: letsencrypt_renewal
+        special_time: weekly
+        job: certbot renew --nginx && systemctl restart nginx
+

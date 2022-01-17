@@ -1,0 +1,148 @@
+---
+- name: Get latest release of package
+  community.general.github_release:
+    user: "divvun"
+    repo: "pahkat-reposrv"
+    action: latest_release
+  register: release
+  tags:
+    - pahkat-reposrv
+
+- name: Download package
+  ansible.builtin.get_url:
+    url: "https://github.com/divvun/pahkat-reposrv/releases/download/{{ release.tag }}/pahkat-reposrv"
+    dest: /tmp
+  tags:
+    - pahkat-reposrv
+
+- name: Install package
+  ansible.builtin.copy:
+    src: "/tmp/pahkat-reposrv"
+    dest: "/usr/local/bin"
+    mode: a+x
+    remote_src: true
+  become: true
+  tags:
+    - pahkat-reposrv
+
+- name: Create user
+  ansible.builtin.user:
+    name: pahkat-reposrv
+
+- name: Create .ssh directory
+  ansible.builtin.file:
+    path: /home/pahkat-reposrv/.ssh/
+    state: directory
+    mode: 0700
+    owner: pahkat-reposrv
+    group: pahkat-reposrv
+
+- name: Copy SSH known_hosts
+  ansible.builtin.copy:
+    src: /root/.ssh/known_hosts
+    dest: /home/pahkat-reposrv/.ssh/
+    mode: 0600
+    owner: pahkat-reposrv
+    group: pahkat-reposrv
+    remote_src: true
+
+- name: Copy SSH keys
+  ansible.builtin.copy:
+    src: "{{playbook_dir}}/tmp/id_ed25519.pub"
+    dest: /home/pahkat-reposrv/.ssh/
+    mode: 0600
+    owner: pahkat-reposrv
+    group: pahkat-reposrv
+
+- name: Copy SSH keys
+  ansible.builtin.copy:
+    src: "{{playbook_dir}}/tmp/id_ed25519"
+    dest: /home/pahkat-reposrv/.ssh/
+    mode: 0600
+    owner: pahkat-reposrv
+    group: pahkat-reposrv
+
+- name: Create index directory
+  ansible.builtin.file:
+    path: /pahkat-index/
+    state: directory
+    mode: 0755
+    owner: pahkat-reposrv
+    group: pahkat-reposrv
+
+- name: Clone index from github
+  ansible.builtin.git:
+    repo: git@github.com:divvun/pahkat.uit.no-index.git
+    dest: /pahkat-index
+  become: yes
+  become_user: pahkat-reposrv
+
+- name: Install config file
+  ansible.builtin.copy:
+    content: |
+      git_path = "/pahkat-index"
+      repos = ["main", "tools", "divvun-installer", "devtools"]
+      api_token = "abc12qsldjqslkdj3"
+      index_interval = 10
+      url = "https://pahkat.thetc.se"
+      host = "127.0.0.1"
+      port = 3111
+    dest: "/etc/pahkat-reposrv.toml"
+  tags:
+    - pahkat-reposrv
+
+- name: Install systemd service
+  ansible.builtin.copy:
+    content: |
+      [Unit]
+      Description = "Pahkat-reposrv"
+
+      [Service]
+      ExecStart = /usr/local/bin/pahkat-reposrv --config-path /etc/pahkat-reposrv.toml
+      User=pahkat-reposrv
+
+      [Install]
+      WantedBy=multi-user.target
+    dest: "/etc/systemd/system/pahkat-reposrv.service"
+
+- name: Cleanup
+  ansible.builtin.file:
+    path: "/tmp/pahkat-reposrv"
+    state: absent
+  tags:
+    - pahkat-reposrv
+
+- name: Enable and restart package
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    state: restarted
+    name: "pahkat-reposrv"
+    enabled: yes
+
+- name: Create letsencrypt certificate
+  shell: certbot run --nginx -d "pahkat.thetc.se" --agree-tos -m "bastien@technocreatives.com" --expand
+  args:
+    creates: /etc/letsencrypt/live/pahkat.thetc.se
+
+- name: Add nginx config
+  ansible.builtin.copy:
+    content: |
+      server {
+          listen 443 ssl http2;
+          server_name pahkat.thetc.se;
+
+          ssl_certificate         /etc/letsencrypt/live/pahkat.thetc.se/fullchain.pem;
+          ssl_certificate_key     /etc/letsencrypt/live/pahkat.thetc.se/privkey.pem;
+          ssl_trusted_certificate /etc/letsencrypt/live/pahkat.thetc.se/fullchain.pem;
+
+          location / {
+              proxy_pass http://127.0.0.1:3111;
+          }
+
+          location = /robots.txt {
+              add_header Content-Type text/plain;
+              return 200 "User-agent: *\nDisallow: /\n";
+          }
+      }
+    dest: "/etc/nginx/sites-enabled/pahkat.thetc.se"
+
