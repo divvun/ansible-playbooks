@@ -87,6 +87,7 @@
       url = "https://pahkat.thetc.se"
       host = "127.0.0.1"
       port = 3111
+      branch_name = "thetc"
     dest: "/etc/pahkat-reposrv.toml"
   tags:
     - pahkat-reposrv
