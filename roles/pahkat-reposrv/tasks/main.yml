@@ -87,7 +87,7 @@
     content: |
       git_path = "/pahkat-index"
       repos = ["main", "tools", "divvun-installer", "devtools"]
-      api_token = {{vars.API_TOKEN}}
+      api_token = "{{vars.API_TOKEN}}"
       index_interval = 10
       url = "https://pahkat.thetc.se"
       host = "127.0.0.1"
