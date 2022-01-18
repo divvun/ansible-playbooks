@@ -77,12 +77,17 @@
   become: yes
   become_user: pahkat-reposrv
 
+- name: Load variables
+  ansible.builtin.include_vars:
+    file: tmp/vars.yml
+  no_log: true
+
 - name: Install config file
   ansible.builtin.copy:
     content: |
       git_path = "/pahkat-index"
       repos = ["main", "tools", "divvun-installer", "devtools"]
-      api_token = "abc12qsldjqslkdj3"
+      api_token = {{vars.API_TOKEN}}
       index_interval = 10
       url = "https://pahkat.thetc.se"
       host = "127.0.0.1"
