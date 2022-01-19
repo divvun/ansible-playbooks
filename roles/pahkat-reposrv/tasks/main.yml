@@ -77,6 +77,22 @@
   become: yes
   become_user: pahkat-reposrv
 
+- name: Git config email
+  ansible.builtin.command:
+    cmd: "git config user.email feedback@divvun.no"
+  args:
+    chdir: /pahkat-index
+  become: yes
+  become_user: pahkat-reposrv
+
+- name: Git config name
+  ansible.builtin.command:
+    cmd: "git config user.name \"Divvun bot\""
+  args:
+    chdir: /pahkat-index
+  become: yes
+  become_user: pahkat-reposrv
+
 - name: Load variables
   ansible.builtin.include_vars:
     file: tmp/vars.yml
