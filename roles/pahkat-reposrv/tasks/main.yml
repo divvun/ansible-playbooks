@@ -141,9 +141,6 @@
     name: "pahkat-reposrv"
     enabled: yes
 
-- name: Create letsencrypt certificate
-  shell: certbot run --nginx -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
-
 - name: Add nginx config
   ansible.builtin.copy:
     content: |
@@ -168,4 +165,7 @@
           }
       }
     dest: "/etc/nginx/sites-enabled/pahkat.thetc.se"
+
+- name: Create letsencrypt certificate
+  shell: certbot run --nginx -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
 
