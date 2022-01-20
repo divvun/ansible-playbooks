@@ -167,5 +167,5 @@
     dest: "/etc/nginx/sites-enabled/pahkat.thetc.se"
 
 - name: Create letsencrypt certificate
-  shell: certbot run --nginx -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
+  shell: certbot run -n --nginx -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
 
