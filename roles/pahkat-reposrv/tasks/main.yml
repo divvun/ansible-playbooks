@@ -156,7 +156,7 @@
               rewrite (.*)//+(.*) $1/$2 break;
               proxy_redirect     off;
               proxy_set_header   Host $host;
-              proxy_pass http://127.0.0.1:3111;
+              proxy_pass http://127.0.0.1:3111/;
           }
 
           location = /robots.txt {
