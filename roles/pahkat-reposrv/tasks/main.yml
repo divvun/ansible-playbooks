@@ -108,7 +108,7 @@
       url = "https://pahkat.giellalt.org"
       host = "127.0.0.1"
       port = 3111
-      branch_name = "thetc"
+      branch_name = "main"
     dest: "/etc/pahkat-reposrv.toml"
   tags:
     - pahkat-reposrv
@@ -146,7 +146,7 @@
     content: |
       server {
           listen 443 ssl http2;
-          server_name pahkat.thetc.se pahkat.giellalt.org;
+          server_name pahkat.thetc.se pahkat.giellalt.org pahkat.uit.no;
 
           ssl_certificate         /etc/letsencrypt/live/pahkat.thetc.se/fullchain.pem;
           ssl_certificate_key     /etc/letsencrypt/live/pahkat.thetc.se/privkey.pem;
@@ -167,5 +167,5 @@
     dest: "/etc/nginx/sites-enabled/pahkat.thetc.se"
 
 - name: Create letsencrypt certificate
-  shell: certbot run -n --nginx -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
+  shell: certbot run -n --nginx -d "pahkat.uit.no" -d "pahkat.thetc.se" -d "pahkat.giellalt.org" --agree-tos -m "bastien@technocreatives.com" --expand
 
