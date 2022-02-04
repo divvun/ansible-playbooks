@@ -152,6 +152,10 @@
           ssl_certificate_key     /etc/letsencrypt/live/pahkat.thetc.se/privkey.pem;
           ssl_trusted_certificate /etc/letsencrypt/live/pahkat.thetc.se/fullchain.pem;
 
+          location /main/landing {
+            root /pahkat-index;
+          }
+
           location / {
               rewrite (.*)//+(.*) $1/$2 break;
               proxy_redirect     off;
