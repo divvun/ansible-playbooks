@@ -163,6 +163,10 @@
               proxy_pass http://127.0.0.1:3111/;
           }
 
+          location /artifacts {
+            return 302 https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/$request_uri;
+          }
+
           location = /robots.txt {
               add_header Content-Type text/plain;
               return 200 "User-agent: *\nDisallow: /\n";
