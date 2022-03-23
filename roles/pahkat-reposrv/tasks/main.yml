@@ -156,6 +156,10 @@
             root /pahkat-index;
           }
 
+          location /oneclick.json {
+            alias /pahkat-index/oneclick.json;
+          }
+
           location / {
               rewrite (.*)//+(.*) $1/$2 break;
               proxy_redirect     off;
