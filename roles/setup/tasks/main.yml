@@ -17,7 +17,7 @@
     key: "github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
 
 - name: Install nginx
-  apt: name=nginx state=present
+  apt: name=nginx-extras state=present
 
 - name: Install certbot
   apt: name=python3-certbot-nginx state=present

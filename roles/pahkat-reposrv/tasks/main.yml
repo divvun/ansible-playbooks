@@ -171,6 +171,13 @@
           gzip_types application/octet-stream;
           include /etc/nginx/conf.d/*.conf;
           include /etc/nginx/sites-enabled/*;
+          perl_modules perl/lib;
+          perl_set $uri_encoded 'sub {
+            my $r = shift;
+            my $uri = $r->uri;
+            $uri =~ s/\+/%2B/g;
+            return $uri;
+          }';
       }
     dest: "/etc/nginx/nginx.conf"
 
@@ -201,7 +208,7 @@
           }
 
           location /artifacts {
-            return 302 https://divvun-pahkat.s3.eu-central-1.amazonaws.com/pahkat$request_uri;
+            return 302 https://divvun-pahkat.s3.eu-central-1.amazonaws.com/pahkat$uri_encoded;
           }
 
           location = /robots.txt {
