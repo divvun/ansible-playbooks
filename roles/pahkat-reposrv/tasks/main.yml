@@ -201,7 +201,7 @@
           }
 
           location /artifacts {
-            return 302 https://divvun.ams3.cdn.digitaloceanspaces.com/pahkat/$request_uri;
+            return 302 https://divvun-pahkat.s3.eu-central-1.amazonaws.com/pahkat/$request_uri;
           }
 
           location = /robots.txt {
