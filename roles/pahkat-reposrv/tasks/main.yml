@@ -122,6 +122,7 @@
       [Service]
       ExecStart = /usr/local/bin/pahkat-reposrv --config-path /etc/pahkat-reposrv.toml
       User=pahkat-reposrv
+      Restart=always
 
       [Install]
       WantedBy=multi-user.target
